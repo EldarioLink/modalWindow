@@ -1,4 +1,4 @@
-const fruits = [{
+let fruits = [{
         id: 1,
         title: 'Яблоки',
         price: 20,
@@ -31,7 +31,7 @@ const toHTML = fruit => ` <div class="col">
 
 
 function render() {
-    const html = fruits.map(fruit => toHTML(fruit)).join('')
+    const html = fruits.map(toHTML).join('')
     document.querySelector('#fruits').innerHTML = html
 }
 
@@ -42,33 +42,14 @@ const priceModal = $.modal({
     closable: true,
     width: '200px',
     footerButtons: [{
-        text: 'Ok',
+        text: 'Закрыть  ',
         type: 'primary',
         handler() {
             priceModal.close();
         }
     }]
 })
-
-
-const confirmModal = $.modal({
-    title: 'Are you sure?',
-    closable: true,
-    width: '400px',
-    footerButtons: [{
-        text: 'Отменить',
-        type: 'secondary',
-        handler() {
-            confirmModal.close();
-        }
-    }, {
-        text: 'Удалить',
-        type: 'danger',
-        handler() {
-            confirmModal.close();
-        }
-    }]
-})
+ 
 
 document.addEventListener('click', event => {
     event.preventDefault();
@@ -76,15 +57,19 @@ document.addEventListener('click', event => {
     const id = Number(event.target.dataset.id)
 
     const fruit = fruits.find(f => f.id === id)
-
-
+ 
     if (btnType == 'price') {
         priceModal.setContent(`<p>Цена на ${fruit.title}: <strong>${fruit.price}$</strong></p>`)
         priceModal.open()
     }
-    if (btnType == 'remove') {
-        confirmModal.setContent(`<p>Вы удаляете фрукт: <strong>${fruit.title}</strong></p>`)
-
-        confirmModal.open()
+    else if (btnType == 'remove') {
+        $.confirm({title: 'Вы уверены?',
+        content: `<p>Вы удаляете фрукт: <strong>${fruit.title}</strong></p>`
+    }).then(()=>{
+       fruits = fruits.filter(f => f.id !== id)
+       render();
+    }).catch(()=>{
+        console.log("cancel")
+    })
     }
 })
